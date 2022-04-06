@@ -43,11 +43,13 @@ player and shopkeeper have a dictionary of their stats
 till does not have any items, but it is a character so that the player can interact with it
 '''
 player = Actor('player', anchor=(0, 0), pos=(7 * TILE_SIZE, 8 * TILE_SIZE))
-player_items = []
+# Items the player owns. Key = item, Value = (number of this item, cost of this item - False means it is a quest item and cannot be sold)
+player_items = {'paper': [5, 1], 'pen': [1, 5], 'special necklace': [1, False]}
 player_stats = {'money': 10, 'energy': 100}
 
 shopkeeper = Actor('shopkeeper', anchor=(0,0), pos=(2 * TILE_SIZE, 3 * TILE_SIZE))
-shopkeeper_items = ['oolong tea', 'green tea', 'white tea', 'black tea', 'puerh tea']
+# Items the shopkeeper owns. Key = item, Value = (number of this item, cost of this item)
+shopkeeper_items = {'oolong tea': [5, 10], 'green tea': [5, 5], 'white tea': [5, 5], 'black tea': [5, 5], 'puerh tea': [5, 10]}
 shopkeeper_stats = {'money': 50}
 
 till = Actor('till', anchor=(0,0), pos=(2 * TILE_SIZE, 4.5 * TILE_SIZE))
@@ -83,7 +85,7 @@ keyboard_variables is a dictionary pairing the key presses with a value - this i
 keyboard will be set to the last key pressed - it is set to False at the start of the game
 '''
 keyboard_variables = {keys.UP: 'up', keys.DOWN: 'down', keys.LEFT: 'left', keys.RIGHT: 'right', keys.SPACE: 'space', keys.ESCAPE: 'escape', keys.RETURN: 'return',
-                    keys.Y: 'y', keys.N: 'n', keys.I: 'i', keys.S: 's',
+                    keys.Y: 'y', keys.N: 'n', keys.I: 'i', keys.S: 's', keys.O: 'o', keys.W: 'w', keys.B: 'b', keys.P: 'p', keys.G: 'g',
                     keys.KP0: 0, keys.KP1: 1, keys.KP2: 2, keys.KP3: 3, keys.KP4: 4, keys.KP5: 5, keys.KP6: 6, keys.KP7: 7, keys.KP8: 8, keys.KP9: 9,
                     keys.K_0: 0, keys.K_1: 1, keys.K_2: 2, keys.K_3: 3, keys.K_4: 4, keys.K_5: 5, keys.K_6: 6, keys.K_7: 7, keys.K_8: 8, keys.K_9: 9}
 keyboard = False
@@ -135,14 +137,14 @@ def shop_dialog():
     global shop_text, keyboard, question
 
     if keyboard == 'escape':
-        shop_text = 'Hello, welcome to my shop! \nCome to the till and press SPACE'
+        shop_text = 'Hello, welcome to my shop!' + '\n' + 'Come to the till and press SPACE'
         question = 0
 
     if question == 0:
         if keyboard == 'i':
             inventory = "You own: "
             for item in player_items:
-                inventory += item + "   "
+                inventory += "  " + str(player_items.get(item)[0]) + "x" + item
             shop_text = inventory
 
         elif keyboard == 's':
@@ -152,20 +154,29 @@ def shop_dialog():
             shop_text = stats
 
         elif till.colliderect(player) and keyboard == 'space':
-            shop_text = "I have " + str(len(shopkeeper_items)) + " types of tea for sale today, they each cost \xA35" + "\n" + "Type Y or N"
-            question = 1
-
-    if question == 1:
-        if keyboard == 'y':
-            shop_items = ""
+            shop = ""
+            #count = 0
             for item in shopkeeper_items:
-                shop_items += str(shopkeeper_items.index(item)) + ' = ' + item + "   "
-            shop_text = shop_items + "\n" + "Type the number of the item you want to buy"
-            question = 2
-        elif keyboard == 'n':
-            shop_text = "Goodbye!"
-            question = 0
+               shop += item + ": \xA3" + str(shopkeeper_items.get(item)[1]) + ";  "
+               #count += 1
+            shop_text = "I have the following items for sale today:" + "\n" + shop + "\n" + "Type the first letter to buy, or type T to trade your items instead."
+            question = 1
+##### WORKING HERE #####
+    if question == 1:
+        # for every dictionary item, look at the first letter of the key. if it matches keyboard then buy that item
+        for item in shopkeeper_items:
+            if keyboard == item[0]:
+                bought_thing = item
+        question = 2
 
+
+        if bought_thing == False:
+            shop_text = "I don't sell that item! Goodbye."
+            question = 0
+        else:
+            shop_text = "You bought " + bought_thing + "!"
+            question = 2
+    '''
     if question == 2:
         if keyboard == 'n':
             shop_text = "Goodbye!"
@@ -187,7 +198,7 @@ def shop_dialog():
             else:
                 shop_text = "I don't sell that! Goodbye."
                 question = 0
-
+    '''
     return
 
 
