@@ -38,7 +38,7 @@ shop_map = [ [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
 """
 Set up the characters
 player and shopkeeper have an image and a start position
-player and shopkeeper have a list of the items they are carrying
+player and shopkeeper have a list of the items they are carrying (currently empty)
 till does not have any items, but it is a character so that the player can interact with it
 """
 player = Actor("player", anchor=(0, 0), pos=(7 * TILE_SIZE, 8 * TILE_SIZE))
@@ -135,6 +135,8 @@ Update the dialog and allow the player to answer questions
 def shop():
     global text_box, keyboard, progress, location
 
+    print("keyboard = " + str(keyboard) + " | progress = " + str(progress))
+
     if keyboard == "escape":
         text_box = "Hello, welcome to my shop!" + "\n" + "Come to the till and press SPACE"
         progress = 0
@@ -183,6 +185,8 @@ progress = 0
 def update():
     if location == "shop":
         shop()
+
+
 
 """
 draw(), on_key_down(), and update() are run automatically by PyGameZero
